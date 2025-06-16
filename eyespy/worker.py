@@ -5,7 +5,7 @@ import threading
 import time
 from typing import List
 
-from .database import SessionLocal, engine
+from eyespy.database import SessionLocal, engine
 from . import crud, models
 from .recorder import CameraRecorder
 
