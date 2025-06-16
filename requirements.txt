@@ -1,2 +1,6 @@
 opencv-python-headless
 PyYAML
+fastapi
+uvicorn
+SQLAlchemy
+python-dotenv
