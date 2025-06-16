@@ -1,0 +1,9 @@
+cameras:
+  - name: camera1
+    url: rtsp://user:pass@192.168.1.10:554/stream1
+    output: recordings/camera1
+    fps: 20.0
+  - name: camera2
+    url: rtsp://user:pass@192.168.1.11:554/stream2
+    output: recordings/camera2
+    fps: 20.0
