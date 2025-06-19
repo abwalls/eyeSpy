@@ -6,38 +6,42 @@ import time
 from typing import List
 
 # Allow running as a script by ensuring the package root is on the path
-if __package__ is None or __package__ == "":
+if __package__ in (None, ""):
     from pathlib import Path
     import sys
 
     sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from eyespy.database import SessionLocal, engine
 from eyespy import crud, models
+from eyespy.database import SessionLocal, engine
 from eyespy.recorder import CameraRecorder
 
-# Ensure database tables exist
-models.Base.metadata.create_all(bind=engine)
-
-# Global list to hold active recorders
+# Active recorders
 recorders: List[CameraRecorder] = []
-# Event to signal shutdown
+# Event to coordinate shutdown across threads
 shutdown_event = threading.Event()
 
 
-def _signal_handler(signum, frame):
-    """Handle termination signals by stopping all recorders."""
-    shutdown_event.set()
-    for recorder in list(recorders):
+def _stop_all() -> None:
+    """Stop all active recorders, ignoring any errors."""
+    for rec in list(recorders):
         try:
-            recorder.stop()
+            rec.stop()
         except Exception:
-            # Ignore errors during shutdown
             pass
 
 
-def run():
-    """Load cameras from the database and start recorders."""
+def _signal_handler(signum, frame) -> None:
+    """Handle termination signals by stopping all recorders."""
+    shutdown_event.set()
+    _stop_all()
+
+
+def run() -> None:
+    """Load cameras from the database and start recording."""
+    # Ensure database tables exist when running as a script
+    models.Base.metadata.create_all(bind=engine)
+
     with SessionLocal() as db:
         cameras = crud.get_cameras(db)
 
@@ -53,11 +57,11 @@ def run():
         while not shutdown_event.is_set():
             time.sleep(1)
     finally:
-        _signal_handler(None, None)
+        _stop_all()
 
 
-def main():
-    """Entry point for the worker when used as a script."""
+def main() -> None:
+    """Entry point for the worker when run as a script."""
     run()
 
 
