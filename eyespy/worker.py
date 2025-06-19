@@ -5,9 +5,19 @@ import threading
 import time
 from typing import List
 
-from .database import SessionLocal, engine
-from . import crud, models
-from .recorder import CameraRecorder
+# Allow running as a script by ensuring the package root is on the path
+if __package__ is None or __package__ == "":
+    from pathlib import Path
+    import sys
+
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from eyespy.database import SessionLocal, engine
+from eyespy import crud, models
+from eyespy.recorder import CameraRecorder
+
+# Ensure database tables exist
+models.Base.metadata.create_all(bind=engine)
 
 # Global list to hold active recorders
 recorders: List[CameraRecorder] = []
@@ -48,8 +58,6 @@ def run():
 
 def main():
     """Entry point for the worker when used as a script."""
-    # Ensure database tables exist before accessing them
-    models.Base.metadata.create_all(bind=engine)
     run()
 
 
