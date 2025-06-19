@@ -51,3 +51,13 @@ python -m eyespy.worker
 The application will start recording each configured feed. Stop it with
 `Ctrl+C`. Footage is saved in the directories specified in the configuration
 file.
+
+### Testing a camera feed
+
+To verify that a stored RTSP URL is valid, call the following endpoint while the API server is running:
+
+```
+GET /cameras/{camera_id}/test
+```
+
+It returns `{ "ok": true }` if a frame can be read from the stream. Otherwise the response includes an error message.

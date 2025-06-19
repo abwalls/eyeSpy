@@ -21,3 +21,9 @@ class Camera(CameraBase):
 
     class Config:
         orm_mode = True
+
+
+class CameraTestResult(BaseModel):
+    ok: bool
+    error: Optional[str] = None
+

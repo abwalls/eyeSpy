@@ -54,3 +54,24 @@ def delete_camera(camera_id: int, db: Session = Depends(get_db)):
     if not cam:
         raise HTTPException(status_code=404, detail="Camera not found")
     return cam
+
+
+@router.get("/{camera_id}/test", response_model=schemas.CameraTestResult)
+def test_camera_feed(camera_id: int, db: Session = Depends(get_db)):
+    """Validate that the camera's RTSP stream can be opened."""
+    cam = crud.get_camera(db, camera_id)
+    if not cam:
+        raise HTTPException(status_code=404, detail="Camera not found")
+
+    import cv2
+
+    cap = cv2.VideoCapture(cam.url)
+    try:
+        if not cap.isOpened():
+            return {"ok": False, "error": "Unable to open stream"}
+        ret, _ = cap.read()
+        if not ret:
+            return {"ok": False, "error": "Unable to read frame from stream"}
+        return {"ok": True, "error": None}
+    finally:
+        cap.release()
