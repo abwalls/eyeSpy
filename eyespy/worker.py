@@ -5,9 +5,16 @@ import threading
 import time
 from typing import List
 
+# Allow running as a script by ensuring the package root is on the path
+if __package__ is None or __package__ == "":
+    from pathlib import Path
+    import sys
+
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from eyespy.database import SessionLocal, engine
-from . import crud, models
-from .recorder import CameraRecorder
+from eyespy import crud, models
+from eyespy.recorder import CameraRecorder
 
 # Ensure database tables exist
 models.Base.metadata.create_all(bind=engine)
