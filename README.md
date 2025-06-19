@@ -36,11 +36,17 @@ exist.
 
 ## Running
 
-Run the aggregator with:
+Run the API server with:
 
 ```bash
 python main.py --config cameras.yaml
 ```
+To start the background worker that records camera streams run:
+
+```
+python -m eyespy.worker
+```
+
 
 The application will start recording each configured feed. Stop it with
 `Ctrl+C`. Footage is saved in the directories specified in the configuration
