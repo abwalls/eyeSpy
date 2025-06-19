@@ -5,12 +5,16 @@ import threading
 import time
 from typing import List
 
-# Allow running as a script by ensuring the package root is on the path
-if __package__ is None or __package__ == "":
-    from pathlib import Path
-    import sys
+# Ensure the project root is on the import path. This allows running the file
+# directly with ``python eyespy/worker.py`` as well as via ``python -m
+# eyespy.worker`` without having to continually tweak these imports in future
+# pull requests.
+from pathlib import Path
+import sys
 
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from eyespy.database import SessionLocal, engine
 from eyespy import crud, models
