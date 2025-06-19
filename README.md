@@ -51,3 +51,10 @@ python -m eyespy.worker
 The application will start recording each configured feed. Stop it with
 `Ctrl+C`. Footage is saved in the directories specified in the configuration
 file.
+
+## Testing Camera Feeds
+
+The API exposes an endpoint to verify that a configured camera feed is
+reachable. Use `/cameras/<id>/test` to check the connection for a specific
+camera by ID. A successful response will include `{"status": "success"}` while
+failures return an error message.

@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
+import cv2
 from sqlalchemy.orm import Session
 
 from .. import crud, schemas, models
@@ -54,3 +55,23 @@ def delete_camera(camera_id: int, db: Session = Depends(get_db)):
     if not cam:
         raise HTTPException(status_code=404, detail="Camera not found")
     return cam
+
+
+@router.get("/{camera_id}/test")
+def test_camera_feed(camera_id: int, db: Session = Depends(get_db)):
+    """Check if the camera feed can be opened and returns frames."""
+    cam = crud.get_camera(db, camera_id)
+    if not cam:
+        raise HTTPException(status_code=404, detail="Camera not found")
+
+    cap = cv2.VideoCapture(cam.url)
+    if not cap.isOpened():
+        cap.release()
+        return {"camera_id": camera_id, "status": "error", "detail": "Failed to open stream"}
+
+    ret, _ = cap.read()
+    cap.release()
+    if not ret:
+        return {"camera_id": camera_id, "status": "error", "detail": "No frames received"}
+
+    return {"camera_id": camera_id, "status": "success"}
