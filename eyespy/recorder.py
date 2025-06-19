@@ -32,7 +32,7 @@ class CameraRecorder:
             self.fps,
             (width, height))
         self.running = True
-        self.thread = threading.Thread(target=self._record)
+        self.thread = threading.Thread(target=self._record, daemon=True)
         self.thread.start()
 
     def stop(self):
@@ -45,9 +45,16 @@ class CameraRecorder:
             self.writer.release()
 
     def _record(self):
-        while self.running:
-            ret, frame = self.capture.read()
-            if not ret:
-                break
-            self.writer.write(frame)
-        self.stop()
+        try:
+            while self.running:
+                ret, frame = self.capture.read()
+                if not ret:
+                    break
+                self.writer.write(frame)
+        finally:
+            # Clean up resources without joining the thread again
+            self.running = False
+            if self.capture:
+                self.capture.release()
+            if self.writer:
+                self.writer.release()

@@ -9,9 +9,6 @@ from .database import SessionLocal, engine
 from . import crud, models
 from .recorder import CameraRecorder
 
-# Ensure database tables exist
-models.Base.metadata.create_all(bind=engine)
-
 # Global list to hold active recorders
 recorders: List[CameraRecorder] = []
 # Event to signal shutdown
@@ -21,20 +18,18 @@ shutdown_event = threading.Event()
 def _signal_handler(signum, frame):
     """Handle termination signals by stopping all recorders."""
     shutdown_event.set()
-    for recorder in recorders:
+    for recorder in list(recorders):
         try:
             recorder.stop()
         except Exception:
+            # Ignore errors during shutdown
             pass
 
 
 def run():
     """Load cameras from the database and start recorders."""
-    db = SessionLocal()
-    try:
+    with SessionLocal() as db:
         cameras = crud.get_cameras(db)
-    finally:
-        db.close()
 
     for cam in cameras:
         rec = CameraRecorder(cam.name, cam.url, cam.output, fps=cam.fps)
@@ -52,6 +47,9 @@ def run():
 
 
 def main():
+    """Entry point for the worker when used as a script."""
+    # Ensure database tables exist before accessing them
+    models.Base.metadata.create_all(bind=engine)
     run()
 
 
