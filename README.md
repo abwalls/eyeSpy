@@ -34,6 +34,23 @@ cameras:
 Add one entry per camera. The output directory will be created if it does not
 exist.
 
+## Authentication
+
+The camera API requires an API key. Set `EYESPY_API_KEY` in your environment
+(or `.env` file), then pass it on every request via the `X-API-Key` header:
+
+```bash
+export EYESPY_API_KEY=change-me
+curl -H "X-API-Key: change-me" http://127.0.0.1:8000/cameras/
+```
+
+The server binds to `127.0.0.1` by default. Set `EYESPY_HOST=0.0.0.0` only if
+you intend to expose it beyond localhost, and put it behind your own network
+controls if you do.
+
+Camera URLs are restricted to `rtsp://`/`rtsps://` schemes to prevent the
+`/cameras/{id}/test` endpoint from being used to probe arbitrary hosts.
+
 ## Running
 
 Run the API server with:

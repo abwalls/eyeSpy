@@ -4,12 +4,13 @@ import cv2
 from sqlalchemy.orm import Session
 
 from .. import crud, schemas, models
+from ..auth import require_api_key
 from ..database import SessionLocal, engine
 
 # Ensure tables are created
 models.Base.metadata.create_all(bind=engine)
 
-router = APIRouter(prefix="/cameras", tags=["cameras"])
+router = APIRouter(prefix="/cameras", tags=["cameras"], dependencies=[Depends(require_api_key)])
 
 
 def get_db():

@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
@@ -16,4 +18,9 @@ app.include_router(cameras.router)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+    # Defaults to localhost-only; set EYESPY_HOST=0.0.0.0 to expose on the network.
+    uvicorn.run(
+        "main:app",
+        host=os.environ.get("EYESPY_HOST", "127.0.0.1"),
+        port=int(os.environ.get("EYESPY_PORT", 8000)),
+    )
